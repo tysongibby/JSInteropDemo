@@ -1,0 +1,84 @@
+﻿@page "/"
+@inject IJSRuntime JsRuntime
+
+<PageTitle>Index</PageTitle>
+
+<h1>Java Script Interoperability</h1>
+
+<h3>Create alert</h3>
+
+<button class="btn btn-success" @onclick="ShowAlert">Show alert</button>
+<br />
+<br />
+
+<h3>Ask me a questions</h3>
+
+<input @bind="questionText" />
+
+<button class="btn btn-warning" @onclick="AskQuestion">Ask question</button>
+
+<div>
+    The answer was: <span id="answerSpan"></span>
+</div>
+
+<h3>Please focus</h3>
+
+<input @ref="InputToFocus" />
+<button class="btn btn-danger" @onclick="Focus">Focus</button>
+
+<h3>Give me random int</h3>
+
+<div>
+    The random number is: <span id="randomNumberSpan"></span>
+</div>
+
+<button class="btn btn-info" onclick="giveMeRandomInt()">Randomize!</button>
+
+@code
+{
+    string questionText = string.Empty;
+    ElementReference InputToFocus;
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+
+        // can't be used for JSInterop as the page will not be rendered yet
+        // so JSRuntime will not be available yet.
+        // use proctected override void OnAfterRender()
+    }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        base.OnAfterRender(firstRender);
+
+        // check to see if first render
+        if (firstRender)
+        {
+            // do JSInterop with JSRuntime here
+        }
+    }
+
+    async Task Focus()
+    {
+        await JsRuntime.InvokeVoidAsync(identifier: "focusOnElement", InputToFocus);
+    }
+
+    async Task ShowAlert()
+    {
+        await JsRuntime.InvokeVoidAsync(identifier: "createAlert");
+    }
+
+    async Task AskQuestion()
+    {
+        var response = await JsRuntime.InvokeAsync<string>(identifier: "createPrompt", questionText);
+        await JsRuntime.InvokeVoidAsync("setElementTextById", "answerSpan", response);
+    }
+
+    [JSInvokable] // makes method invokable from JavaScript
+    public static Task<int> GenerateRandomInt()
+    {
+        return Task.FromResult(new Random().Next());
+    }
+
+}
