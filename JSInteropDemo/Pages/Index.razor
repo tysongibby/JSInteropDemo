@@ -1,4 +1,5 @@
 ﻿@page "/"
+@using JSInteropDemo.Helpers;
 @inject IJSRuntime JsRuntime
 
 <PageTitle>Index</PageTitle>
@@ -32,7 +33,14 @@
     The random number is: <span id="randomNumberSpan"></span>
 </div>
 
-<button class="btn btn-info" onclick="giveMeRandomInt()">Randomize!</button>
+<button class="btn btn-info" onclick="giveMeRandomInt(100)">Randomize!</button>
+<br/>
+<h3>Give me another random int</h3>
+
+<div>
+    The other random number is: <span id="randomNumberSpan2"></span>
+</div>
+<button class="btn btn-info" @onclick="GenerateRandom">Randomize 2!</button>
 
 @code
 {
@@ -75,10 +83,11 @@
         await JsRuntime.InvokeVoidAsync("setElementTextById", "answerSpan", response);
     }
 
-    [JSInvokable] // makes method invokable from JavaScript
-    public static Task<int> GenerateRandomInt()
+    
+    public async Task GenerateRandom()
     {
-        return Task.FromResult(new Random().Next());
+        await JsRuntime.InvokeVoidAsync("giveMeRandom", 100, 
+            DotNetObjectReference.Create(new RandomHelper()));
     }
 
 }

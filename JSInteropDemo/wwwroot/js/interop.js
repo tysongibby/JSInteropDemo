@@ -14,9 +14,18 @@ function focusOnElement(element) {
     element.focus();
 }
 
-function giveMeRandomInt() {
-    DotNet.invokeMethodAsync('JSInteropDemo', 'GenerateRandomInt')
+function giveMeRandomInt(maxIntSize) { 
+    // blazor automatically associates maxInt as a parameter to the GenerateRandomInt method being called
+    DotNet.invokeMethodAsync('JSInteropDemo', 'GenerateRandomInt', maxIntSize)
         .then(result => {
             setElementTextById('randomNumberSpan', result);
         });
+}
+
+function giveMeRandom(maxIntSize, dotnetInstance) { 
+    // the assembly does not need to be referenced becase the dotnet instance is being used
+    dotnetInstance.invokeMethodAsync('GenerateRandomInt', maxIntSize)
+        .then(result => {
+            setElementTextById('randomNumberSpan2', result);
+        })
 }
